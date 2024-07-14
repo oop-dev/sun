@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Example</title>
+</head>
+<body>
+<a href="http://localhost:3000/public/test.mp4">down</a>
+uid<input type="text" id="uid" placeholder="Enter message">
+<input type="text" id="messageInput" placeholder="Enter message">
+to<input type="text" id="to" placeholder="Enter message">
+<button onclick="conn()">conn</button>
+<button onclick="getuser()">获取用户</button>
+
+<script>
+    class WebSocketHandler {
+        constructor() {
+            this.ws = new WebSocket('ws://localhost:3000/ws');
+            this.callbacks = {};
+            this.messageId = 1;
+
+            // 监听 WebSocket 消息
+            this.ws.onmessage = event => {
+                console.log('onmessage:');
+                const data = JSON.parse(event.data);
+                const messageId = data.messageId;
+                if (this.callbacks[messageId]) {
+                    this.callbacks[messageId](data);
+                    delete this.callbacks[messageId];
+                }
+            };
+        }
+
+        // 发送请求
+        async request(method, params) {
+            const messageId = this.messageId++;
+            const requestObject = { messageId, method, params };
+            const requestString = JSON.stringify(requestObject);
+
+            // 发送请求
+            this.ws.send(requestString);
+
+            // 返回一个 Promise，等待响应
+            return new Promise(resolve => {
+                this.callbacks[messageId] = resolve;
+            });
+        }
+    }
+
+    // 创建 WebSocketHandler 实例
+    const ws = new WebSocketHandler();
+
+
+
+   async function getuser() {
+       const users = await ws.request('user.get');
+       console.log('Received users:', users);
+   }
+
+
+
+</script>
+</body>
+</html>
