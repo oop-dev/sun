@@ -126,7 +126,7 @@ conf.toml配置postgres数据库的连接
 dsn='postgres://postgres:root@localhost:5432/mydb'
 ```
 ### 使用：
-继承base类自动用于增删改查方法，post，del，put，get
+继承base类自动拥有增删改查方法，post，del，put，get
 ``` js
 export class users extends base{
     name: string
@@ -232,7 +232,7 @@ export class users extends base{
     name: string
     age:number
     async testDel(id) {//json自动绑定到this.name和name，二选一
-        return await super.get()  //super.get(id)等效,delete from users where name='张三'
+        return await super.get()  //super.get(id)等效,select *  from users where name='张三'
     }    
 }
 ```
@@ -242,18 +242,18 @@ export class users extends base{
     name: string
     age:number
     async testDel(where) {//根据参数个数自动动态查询
-        return await super.get() //super.get(where)等效，delete from users where id=1 and name=张三 
+        return await super.get() //super.get(where)等效，select *  from users where id=1 and name=张三 
     }    
 }
 ```
-### 条件删除：/users/testGet?id<100|name=张三
+### 条件查询：/users/testGet?id<100|name=张三
 这里涉及query sql，代表sql的条件，和sql写法一模一样，但是and or显得臃肿可以替换成&和|
 ``` js
 export class users extends base{
     name: string
     age:number
     async testGet(where) {
-        return await super.get(where) //delete from users where id<100 or name=张三
+        return await super.get(where) //select * from users where id<100 or name=张三
     }    
 }
 ```
